@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class AnvilRepairHandler {
     @SubscribeEvent
     public static void onAnvilUpdate(AnvilUpdateEvent event) {
-        if (SyncedConfig.poweredByFE && (event.getLeft().getItem() instanceof GadgetGeneric) && (event.getRight().getItem() == Items.DIAMOND)) {
+        if (SyncedConfig.poweredByEU && (event.getLeft().getItem() instanceof GadgetGeneric) && (event.getRight().getItem() == Items.DIAMOND)) {
             event.setCost(3);
             event.setMaterialCost(1);
             ItemStack newItem = event.getLeft().copy();

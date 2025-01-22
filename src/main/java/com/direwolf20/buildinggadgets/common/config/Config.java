@@ -46,11 +46,7 @@ public class Config {
     @LangKey(LANG_KEY_ROOT + ".rayTraceRange")
     public static double rayTraceRange = 32;
 
-    @RequiresWorldRestart
-    @Name("Powered by Forge Energy")
-    @Comment("Set to true for Forge Energy Support, set to False for vanilla Item Damage")
-    @LangKey(LANG_KEY_ROOT + ".poweredByFE")
-    public static boolean poweredByFE = true;
+    public static boolean poweredByEU = true;
 
     @RequiresMcRestart
     @RequiresWorldRestart

@@ -59,8 +59,7 @@ public class SyncedConfig {
     @AutoSync
     public static int energyMaxDestruction;
 
-    @AutoSync
-    public static boolean poweredByFE;
+    public static boolean poweredByEU;
 
     @AutoSync
     public static int durabilityBuilder;
@@ -125,7 +124,7 @@ public class SyncedConfig {
      */
     static void transferValues() {
         rayTraceRange = Config.rayTraceRange;
-        poweredByFE = Config.poweredByFE;
+        poweredByEU = Config.poweredByEU;
         enableDestructionGadget = Config.enableDestructionGadget;
         absoluteCoordDefault = Config.absoluteCoordDefault;
         allowAbsoluteCoords = Config.allowAbsoluteCoords;
