@@ -3,27 +3,30 @@
     "item": "buildinggadgets:copypastetool"
   },
   "pattern": [
-    "iri",
-    "ere",
-    "ili"
+    "igi",
+    "ete",
+    "ici"
   ],
   "type": "forge:ore_shaped",
   "key": {
     "i": {
-      "type": "forge:ore_dict",
-      "ore": "ingotIron"
+      "item": "ic2:itemmisc",
+      "data": 257
     },
-    "r": {
-      "type": "forge:ore_dict",
-      "ore": "dustRedstone"
+    "t": {
+      "item": "ic2:blockmachinehv",
+      "data": 2
     },
-    "l": {
-      "type": "forge:ore_dict",
-      "ore": "gemLapis"
+    "g": {
+      "item": "ic2:blockutility",
+      "data": 5
+    },
+    "c": {
+      "item": "ic2:itemmisc",
+      "data": 452
     },
     "e": {
-      "type": "forge:ore_dict",
-      "ore": "gemEmerald"
+      "item": "ic2:itembatcrystal"
     }
   }
 }

@@ -3,27 +3,34 @@
     "item": "buildinggadgets:exchangertool"
   },
   "pattern": [
-    "iri",
-    "dld",
-    "ili"
+    "gtg",
+    "clc",
+    "ipi"
   ],
   "type": "forge:ore_shaped",
   "key": {
     "i": {
-      "type": "forge:ore_dict",
-      "ore": "ingotIron"
+      "item": "ic2:itemmisc",
+      "data": 257
     },
-    "r": {
-      "type": "forge:ore_dict",
-      "ore": "dustRedstone"
+    "t": {
+      "item": "ic2:blockmachinehv",
+      "data": 2
     },
     "l": {
-      "type": "forge:ore_dict",
-      "ore": "gemLapis"
+      "item": "ic2:itembatlamacrystal"
     },
-    "d": {
-      "type": "forge:ore_dict",
-      "ore": "gemDiamond"
+    "p": {
+      "item": "ic2:itemmisc",
+      "data": 258
+    },
+    "g": {
+      "item": "ic2:blockutility",
+      "data": 5
+    },
+    "c": {
+      "item": "ic2:itemmisc",
+      "data": 452
     }
   }
 }

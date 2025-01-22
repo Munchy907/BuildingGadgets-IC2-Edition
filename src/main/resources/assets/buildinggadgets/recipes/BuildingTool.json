@@ -3,27 +3,30 @@
     "item": "buildinggadgets:buildingtool"
   },
   "pattern": [
-    "iri",
-    "drd",
-    "ili"
+    "iti",
+    "ege",
+    "ici"
   ],
   "type": "forge:ore_shaped",
   "key": {
     "i": {
-      "type": "forge:ore_dict",
-      "ore": "ingotIron"
+      "item": "ic2:itemmisc",
+      "data": 257
     },
-    "r": {
-      "type": "forge:ore_dict",
-      "ore": "dustRedstone"
+    "t": {
+      "item": "ic2:blockmachinehv",
+      "data": 2
     },
-    "l": {
-      "type": "forge:ore_dict",
-      "ore": "gemLapis"
+    "g": {
+      "item": "ic2:blockutility",
+      "data": 5
     },
-    "d": {
-      "type": "forge:ore_dict",
-      "ore": "gemDiamond"
+    "c": {
+      "item": "ic2:itemmisc",
+      "data": 452
+    },
+    "e": {
+      "item": "ic2:itembatcrystal"
     }
   }
 }

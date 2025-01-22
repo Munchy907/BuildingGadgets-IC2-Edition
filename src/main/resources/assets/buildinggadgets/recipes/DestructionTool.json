@@ -3,27 +3,34 @@
     "item": "buildinggadgets:destructiontool"
   },
   "pattern": [
-    "iri",
-    "ere",
-    "ili"
+    "rit",
+    "clc",
+    "ipi"
   ],
   "type": "forge:ore_shaped",
   "key": {
     "i": {
-      "type": "forge:ore_dict",
-      "ore": "ingotIron"
+      "item": "ic2:itemmisc",
+      "data": 257
+    },
+    "p": {
+      "item": "ic2:itemmisc",
+      "data": 258
     },
     "r": {
-      "type": "forge:ore_dict",
-      "ore": "dustRedstone"
+      "item": "ic2:blockmachinemv",
+      "data": 6
+    },
+    "c": {
+      "item": "ic2:itemmisc",
+      "data": 452
+    },
+    "t": {
+      "item": "ic2:blockmachinehv",
+      "data": 2
     },
     "l": {
-      "type": "forge:ore_dict",
-      "ore": "gemLapis"
-    },
-    "e": {
-      "type": "forge:ore_dict",
-      "ore": "enderpearl"
+      "item": "ic2:itembatlamacrystal"
     }
   },
   "conditions": [
