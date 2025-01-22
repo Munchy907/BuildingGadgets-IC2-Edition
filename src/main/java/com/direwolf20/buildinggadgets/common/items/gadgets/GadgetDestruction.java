@@ -47,9 +47,7 @@ public class GadgetDestruction extends GadgetGeneric {
     }
 
     @Override
-    public int getMaxDamage(ItemStack stack) {
-        return SyncedConfig.poweredByFE ? 0 : SyncedConfig.durabilityDestruction;
-    }
+    public int getMaxDamage(ItemStack stack) {return 0;}
 
     @Override
     public int getMaxEnergy() {
