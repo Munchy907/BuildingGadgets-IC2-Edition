@@ -2,16 +2,18 @@ package com.direwolf20.buildinggadgets.common.tools;
 
 import com.direwolf20.buildinggadgets.client.RemoteInventoryCache;
 import com.direwolf20.buildinggadgets.common.BuildingGadgets;
+import com.direwolf20.buildinggadgets.common.api.IViewOverlay;
 import com.direwolf20.buildinggadgets.common.blocks.ModBlocks;
 import com.direwolf20.buildinggadgets.common.config.SyncedConfig;
 import com.direwolf20.buildinggadgets.common.items.FakeBuilderWorld;
 import com.direwolf20.buildinggadgets.common.items.ModItems;
-import com.direwolf20.buildinggadgets.common.items.capability.CapabilityProviderEnergy;
 import com.direwolf20.buildinggadgets.common.items.gadgets.GadgetCopyPaste;
 import com.direwolf20.buildinggadgets.common.items.gadgets.GadgetDestruction;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Multiset;
+import ic2.api.item.ElectricItem;
+import ic2.core.platform.registry.Ic2Items;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
@@ -47,7 +49,6 @@ import static net.minecraft.block.BlockStainedGlass.COLOR;
 
 public class ToolRenders {
     private static final FakeBuilderWorld fakeWorld = new FakeBuilderWorld();
-
     private static Minecraft mc = Minecraft.getMinecraft();
     private static RemoteInventoryCache cacheInventory = new RemoteInventoryCache(false);
     private static Cache<Triple<UniqueItemStack, BlockPos, Integer>, Integer> cacheDestructionOverlay = CacheBuilder.newBuilder().maximumSize(1).
@@ -67,7 +68,8 @@ public class ToolRenders {
     }
 
     public static void renderBuilderOverlay(RenderWorldLastEvent evt, EntityPlayer player, ItemStack heldItem) {
-
+        // Check if you have IC2 Powered Helm for the overlay to be displayed
+        if (!ToolRenders.Utils.isValidHelm(player)){return;}
         // Calculate the players current position, which is needed later
         Vec3d playerPos = ToolRenders.Utils.getPlayerTranslate(player, evt.getPartialTicks());
 
@@ -102,7 +104,7 @@ public class ToolRenders {
         long hasBlocks = InventoryManipulation.countItem(itemStack, player, cacheInventory);
         hasBlocks += InventoryManipulation.countPaste(player);
 
-        int hasEnergy = SyncedConfig.energyMax == 0 ? Integer.MAX_VALUE : ToolRenders.Utils.getStackEnergy(heldItem, player);
+        int hasEnergy = SyncedConfig.maxEnergy == 0 ? Integer.MAX_VALUE : ToolRenders.Utils.getStackEnergy(heldItem, player);
 
         // Prepare the fake world -- using a fake world lets us render things properly, like fences connecting.
         Set<BlockPos> coords =  new HashSet<>(coordinates);
@@ -155,6 +157,9 @@ public class ToolRenders {
     }
 
     public static void renderExchangerOverlay(RenderWorldLastEvent evt, EntityPlayer player, ItemStack heldItem) {
+        // Check if you have IC2 Powered Helm for the overlay to be displayed
+        if (!ToolRenders.Utils.isValidHelm(player)){return;}
+
         // Calculate the players current position, which is needed later
         Vec3d playerPos = ToolRenders.Utils.getPlayerTranslate(player, evt.getPartialTicks());
 
@@ -187,7 +192,7 @@ public class ToolRenders {
 
         long hasBlocks = InventoryManipulation.countItem(itemStack, player, cacheInventory);
         hasBlocks = hasBlocks + InventoryManipulation.countPaste(player);
-        int hasEnergy = SyncedConfig.energyMax == 0 ? Integer.MAX_VALUE : ToolRenders.Utils.getStackEnergy(heldItem, player);
+        int hasEnergy = SyncedConfig.maxEnergy == 0 ? Integer.MAX_VALUE : ToolRenders.Utils.getStackEnergy(heldItem, player);
 
         // Prepare the fake world -- using a fake world lets us render things properly, like fences connecting.
         Set<BlockPos> coords =  new HashSet<>(coordinates);
@@ -249,6 +254,9 @@ public class ToolRenders {
     }
 
     public static void renderDestructionOverlay(RenderWorldLastEvent evt, EntityPlayer player, ItemStack stack) {
+        // Check if you have IC2 Powered Helm for the overlay to be displayed
+        if (!ToolRenders.Utils.isValidHelm(player)){return;}
+
         RayTraceResult lookingAt = VectorTools.getLookingAt(player, stack);
         if (lookingAt == null && GadgetDestruction.getAnchor(stack) == null) return;
         World world = player.world;
@@ -278,6 +286,9 @@ public class ToolRenders {
     }
 
     private static void renderDestructionOverlay(EntityPlayer player, World world, BlockPos startBlock, EnumFacing facing, ItemStack heldItem) {
+        // Check if you have IC2 Powered Helm for the overlay to be displayed
+        if (!ToolRenders.Utils.isValidHelm(player)){return;}
+
         mc.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 
         Set<BlockPos> coordinates = GadgetDestruction.getArea(world, startBlock, facing, player, heldItem);
@@ -328,6 +339,9 @@ public class ToolRenders {
     }
 
     public static void renderPasteOverlay(RenderWorldLastEvent evt, EntityPlayer player, ItemStack stack) {
+        // Check if you have IC2 Powered Helm for the overlay to be displayed
+        if (!ToolRenders.Utils.isValidHelm(player)){return;}
+
         //Calculate the players current position, which is needed later
         Vec3d playerPos = ToolRenders.Utils.getPlayerTranslate(player, evt.getPartialTicks());
 
@@ -435,6 +449,7 @@ public class ToolRenders {
     }
 
     private static void renderLinkedInventoryOutline(ItemStack item, Vec3d playerPos, EntityPlayer player) {
+
         Integer dim = GadgetUtils.getDIMFromNBT(item, "boundTE");
         BlockPos pos = GadgetUtils.getPOSFromNBT(item, "boundTE");
 
@@ -531,13 +546,15 @@ public class ToolRenders {
         }
 
         private static int getStackEnergy(ItemStack stack, EntityPlayer player) {
-            if (player.capabilities.isCreativeMode || (!stack.hasCapability(CapabilityEnergy.ENERGY, null) && !stack.isItemStackDamageable()))
+            if (player.capabilities.isCreativeMode)
                 return Integer.MAX_VALUE;
 
-            if (stack.hasCapability(CapabilityEnergy.ENERGY, null))
+            return (int) Math.round(ElectricItem.manager.getCharge(stack));
+
+/*            if (stack.hasCapability(CapabilityEnergy.ENERGY, null))
                 return  CapabilityProviderEnergy.getCap(stack).getEnergyStored();
 
-            return stack.getMaxDamage() - stack.getItemDamage();
+            return stack.getMaxDamage() - stack.getItemDamage();*/
         }
 
         /**
@@ -592,6 +609,16 @@ public class ToolRenders {
                 GlStateManager.translate(-shift, -shift, shift);
                 GlStateManager.scale(1.005f, 1.005f, 1.005f);
             }
+        }
+
+        /**
+         * Check if helm is either IC2 (Nano/Quantum) or is an instant of IViewOverlay
+         */
+        private static boolean isValidHelm(EntityPlayer player){
+            ItemStack helmet = player.inventory.armorInventory.get(3);
+            if (helmet.isEmpty()){return false;}
+            if (helmet.isItemEqual(Ic2Items.quantumHelmet) || helmet.isItemEqual(Ic2Items.nanoHelmet)){return true;}
+            return helmet.getItem() instanceof IViewOverlay;
         }
     }
 }

@@ -46,7 +46,6 @@ import java.util.Map;
 import java.util.UUID;
 
 public class GadgetCopyPaste extends GadgetGeneric implements ITemplate {
-
     public enum ToolMode {
         Copy, Paste;
         private static ToolMode[] vals = values();
@@ -62,9 +61,7 @@ public class GadgetCopyPaste extends GadgetGeneric implements ITemplate {
     }
 
     @Override
-    public int getMaxDamage(ItemStack stack) {
-        return SyncedConfig.poweredByFE ? 0 : SyncedConfig.durabilityCopyPaste;
-    }
+    public int getMaxDamage(ItemStack stack) {return 0;}
 
     @Override
     public int getEnergyCost(ItemStack tool) {
@@ -74,6 +71,26 @@ public class GadgetCopyPaste extends GadgetGeneric implements ITemplate {
     @Override
     public int getDamageCost(ItemStack tool) {
         return SyncedConfig.damageCostCopyPaste;
+    }
+
+    @Override
+    public boolean canProvideEnergy(ItemStack itemStack) {
+        return PROVIDE_ENERGY;
+    }
+
+    @Override
+    public double getMaxCharge(ItemStack itemStack) {
+        return getMaxEnergy();
+    }
+
+    @Override
+    public int getTier(ItemStack itemStack) {
+        return TIER;
+    }
+
+    @Override
+    public double getTransferLimit(ItemStack itemStack) {
+        return TRANSFER_RATE;
     }
 
     private static void setAnchor(ItemStack stack, BlockPos anchorPos) {

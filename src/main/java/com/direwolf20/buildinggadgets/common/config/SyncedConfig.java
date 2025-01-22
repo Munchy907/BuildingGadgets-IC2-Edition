@@ -54,7 +54,7 @@ public class SyncedConfig {
     public static int damageCostCopyPaste;
 
     @AutoSync
-    public static int energyMax;
+    public static int maxEnergy;
 
     @AutoSync
     public static int energyMaxDestruction;
@@ -137,7 +137,7 @@ public class SyncedConfig {
         blockBlacklist = FieldMapper.PATTERN_LIST_MAPPER.mapToField(Config.subCategoryBlacklist.blockBlacklist);
 
         maxRange = Config.subCategoryGadgets.maxRange;
-        energyMax = Config.subCategoryGadgets.maxEnergy;
+        maxEnergy = Config.subCategoryGadgets.maxEnergy;
 
         energyCostBuilder = Config.subCategoryGadgets.subCategoryGadgetBuilding.energyCostBuilder;
         damageCostBuilder = Config.subCategoryGadgets.subCategoryGadgetBuilding.damageCostBuilder;

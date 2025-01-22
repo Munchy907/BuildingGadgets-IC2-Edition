@@ -3,14 +3,12 @@ package com.direwolf20.buildinggadgets.common.items.gadgets;
 import com.direwolf20.buildinggadgets.common.config.SyncedConfig;
 import com.direwolf20.buildinggadgets.common.items.ItemModBase;
 import com.direwolf20.buildinggadgets.common.items.capability.CapabilityProviderBlockProvider;
-import com.direwolf20.buildinggadgets.common.items.capability.CapabilityProviderEnergy;
-import com.direwolf20.buildinggadgets.common.items.capability.ItemEnergyForge;
-import com.direwolf20.buildinggadgets.common.items.capability.MultiCapabilityProvider;
 import com.direwolf20.buildinggadgets.common.tools.NBTTool;
+import ic2.api.item.ElectricItem;
+import ic2.api.item.IElectricItem;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -24,32 +22,31 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.BlockSnapshot;
-import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.world.BlockEvent;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
-import static com.direwolf20.buildinggadgets.common.tools.GadgetUtils.withSuffix;
-
-public abstract class GadgetGeneric extends ItemModBase {
+public abstract class GadgetGeneric extends ItemModBase implements IElectricItem {
+    protected final int TIER = 3; // Tier in IC2 Terms, same tier as Lapotron Crystal
+    protected final int TRANSFER_RATE = 2048; // Transfer rate for IC2, same as Lapotron Crystal
+    protected final boolean PROVIDE_ENERGY = false; // Can provide energy to machines, same as a normal IC2 Tool
 
     public GadgetGeneric(String name) {
         super(name);
         setMaxStackSize(1);
     }
 
-    public int getEnergyMax() {
-        return SyncedConfig.energyMax;
+    public int getMaxEnergy() {
+        return SyncedConfig.maxEnergy;
     }
+
 
     @Override
     @Nullable
     public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable NBTTagCompound tag) {
-        return new MultiCapabilityProvider(new CapabilityProviderEnergy(stack, this::getEnergyMax), new CapabilityProviderBlockProvider(stack));
+        return new CapabilityProviderBlockProvider(stack);
     }
 
     @Override
@@ -64,54 +61,28 @@ public abstract class GadgetGeneric extends ItemModBase {
 
     @Override
     public double getDurabilityForDisplay(ItemStack stack) {
-        if (stack.hasCapability(CapabilityEnergy.ENERGY, null)) {
-            IEnergyStorage energy = CapabilityProviderEnergy.getCap(stack);
-            return 1D - ((double) energy.getEnergyStored() / (double) energy.getMaxEnergyStored());
-        }
-        //return (double)stack.getItemDamage() / (double)stack.getMaxDamage();
-        return super.getDurabilityForDisplay(stack);
+        return 1D - ElectricItem.manager.getCharge(stack) / this.getMaxCharge(stack);
     }
 
     @Override
     public int getRGBDurabilityForDisplay(ItemStack stack) {
-        if (stack.hasCapability(CapabilityEnergy.ENERGY, null)) {
-            IEnergyStorage energy = CapabilityProviderEnergy.getCap(stack);
-            return MathHelper.hsvToRGB(Math.max(0.0F, (float) energy.getEnergyStored() / (float) energy.getMaxEnergyStored()) / 3.0F, 1.0F, 1.0F);
-        }
-        //return MathHelper.hsvToRGB(Math.max(0.0F, (float) (1.0F - getDurabilityForDisplay(stack))) / 3.0F, 1.0F, 1.0F);
-        return super.getRGBDurabilityForDisplay(stack);
+        return MathHelper.hsvToRGB(Math.max(0.0F, (float) ElectricItem.manager.getCharge(stack) / (float) this.getMaxCharge(stack)) / 3.0F, 1.0F, 1.0F);
     }
 
     @Override
     public boolean isDamaged(ItemStack stack) {
-        if (stack.hasCapability(CapabilityEnergy.ENERGY, null)) {
-            IEnergyStorage energy = CapabilityProviderEnergy.getCap(stack);
-            return energy.getEnergyStored() != energy.getMaxEnergyStored();
-        }
-        //return (stack.getItemDamage() > 0);
-        return super.isDamaged(stack);
+        return ElectricItem.manager.getCharge(stack) != this.getMaxEnergy();
     }
 
     @Override
     public boolean showDurabilityBar(ItemStack stack) {
-        if (stack.hasTagCompound() && stack.getTagCompound().hasKey("creative", Constants.NBT.TAG_BYTE))
-            return false;
-
-        if (stack.hasCapability(CapabilityEnergy.ENERGY, null)) {
-            IEnergyStorage energy = CapabilityProviderEnergy.getCap(stack);
-            return energy.getEnergyStored() != energy.getMaxEnergyStored();
-        }
-        //return stack.isItemDamaged();
-        return super.showDurabilityBar(stack);
+        return true;
+        // IC2 Doesn't hide the durability bar when full for its tools
+        // ElectricItem.manager.getCharge(stack) != getMaxCharge();
     }
 
     @Override
     public boolean getIsRepairable(ItemStack toRepair, ItemStack repair) {
-        if (toRepair.hasCapability(CapabilityEnergy.ENERGY, null))
-            return false;
-        if (repair.getItem() == Items.DIAMOND) {
-            return true;
-        }
         return false;
     }
 
@@ -132,35 +103,27 @@ public abstract class GadgetGeneric extends ItemModBase {
 
     public boolean canUse(ItemStack tool, EntityPlayer player) {
         // You can always use in creative or when max energy is set to 0
-        if (player.capabilities.isCreativeMode || getEnergyMax() == 0)
+        if (player.capabilities.isCreativeMode || getMaxEnergy() == 0)
             return true;
 
-        if (tool.hasCapability(CapabilityEnergy.ENERGY, null)) {
-            IEnergyStorage energy = CapabilityProviderEnergy.getCap(tool);
-            return getEnergyCost(tool) <= energy.getEnergyStored();
-        }
-        return tool.getMaxDamage() <= 0 || tool.getItemDamage() < tool.getMaxDamage() || tool.isItemStackDamageable();
+        return ElectricItem.manager.canUse(tool, getEnergyCost(tool));
     }
 
     public void applyDamage(ItemStack tool, EntityPlayer player) {
         // don't apply damage in creative or if there is no power to be had
-        if (player.capabilities.isCreativeMode || getEnergyMax() == 0)
+        if (player.capabilities.isCreativeMode || getMaxEnergy() == 0)
             return;
 
-        if (tool.hasCapability(CapabilityEnergy.ENERGY, null)) {
-            ItemEnergyForge energy = (ItemEnergyForge) CapabilityProviderEnergy.getCap(tool);
-            energy.extractPower(getEnergyCost(tool), false);
-        } else
-            tool.damageItem(getDamageCost(tool), player);
+        ElectricItem.manager.discharge(tool, getEnergyCost(tool), TIER, true, false, false);
     }
 
     protected void addEnergyInformation(List<String> list, ItemStack stack) {
         // Don't display energy for gadgets that can't accept it.
-        if( getEnergyMax() == 0 ) return;
+/*        if( getMaxCharge() == 0 ) return;
         if (stack.hasCapability(CapabilityEnergy.ENERGY, null)) {
             IEnergyStorage energy = CapabilityProviderEnergy.getCap(stack);
             list.add(TextFormatting.WHITE + I18n.format("tooltip.gadget.energy") + ": " + withSuffix(energy.getEnergyStored()) + "/" + withSuffix(energy.getMaxEnergyStored()));
-        }
+        }*/
     }
 
     public static boolean getFuzzy(ItemStack stack) {

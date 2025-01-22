@@ -44,9 +44,7 @@ public class GadgetBuilding extends GadgetGeneric {
     }
 
     @Override
-    public int getMaxDamage(ItemStack stack) {
-        return SyncedConfig.poweredByFE ? 0 : SyncedConfig.durabilityBuilder;
-    }
+    public int getMaxDamage(ItemStack stack) {return 0;}
 
     @Override
     public int getEnergyCost(ItemStack tool) {
@@ -56,6 +54,26 @@ public class GadgetBuilding extends GadgetGeneric {
     @Override
     public int getDamageCost(ItemStack tool) {
         return SyncedConfig.damageCostBuilder;
+    }
+
+    @Override
+    public boolean canProvideEnergy(ItemStack itemStack) {
+        return PROVIDE_ENERGY;
+    }
+
+    @Override
+    public double getMaxCharge(ItemStack itemStack) {
+        return getMaxEnergy();
+    }
+
+    @Override
+    public int getTier(ItemStack itemStack) {
+        return TIER;
+    }
+
+    @Override
+    public double getTransferLimit(ItemStack itemStack) {
+        return TRANSFER_RATE;
     }
 
     private static void setToolMode(ItemStack tool, BuildingModes mode) {

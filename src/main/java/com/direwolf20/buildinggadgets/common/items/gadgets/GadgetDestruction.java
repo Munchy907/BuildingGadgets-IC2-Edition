@@ -52,7 +52,7 @@ public class GadgetDestruction extends GadgetGeneric {
     }
 
     @Override
-    public int getEnergyMax() {
+    public int getMaxEnergy() {
         return SyncedConfig.energyMaxDestruction;
     }
 
@@ -68,6 +68,26 @@ public class GadgetDestruction extends GadgetGeneric {
 
     private int getCostMultiplier(ItemStack tool) {
         return (int) (SyncedConfig.nonFuzzyEnabledDestruction && !getFuzzy(tool) ? SyncedConfig.nonFuzzyMultiplierDestruction : 1);
+    }
+
+    @Override
+    public boolean canProvideEnergy(ItemStack itemStack) {
+        return PROVIDE_ENERGY;
+    }
+
+    @Override
+    public double getMaxCharge(ItemStack itemStack) {
+        return this.getMaxEnergy();
+    }
+
+    @Override
+    public int getTier(ItemStack itemStack) {
+        return TIER;
+    }
+
+    @Override
+    public double getTransferLimit(ItemStack itemStack) {
+        return TRANSFER_RATE;
     }
 
     @Override
@@ -416,4 +436,5 @@ public class GadgetDestruction extends GadgetGeneric {
 
         return stack;
     }
+
 }
