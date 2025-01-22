@@ -550,11 +550,6 @@ public class ToolRenders {
                 return Integer.MAX_VALUE;
 
             return (int) Math.round(ElectricItem.manager.getCharge(stack));
-
-/*            if (stack.hasCapability(CapabilityEnergy.ENERGY, null))
-                return  CapabilityProviderEnergy.getCap(stack).getEnergyStored();
-
-            return stack.getMaxDamage() - stack.getItemDamage();*/
         }
 
         /**
