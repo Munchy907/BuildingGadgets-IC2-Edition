@@ -81,7 +81,8 @@ dependencies {
     deobfCompile "mekanism:Mekanism:${mekanism_version}"
     deobfCompile "cyclic:Cyclic:${cyclic_version}"
     compile('curse.maven:jei-238222:5846804') // JEI
-    compile('curse.maven:bc-892913:5880716') // BC Remastered
+    compile('curse.maven:jei-61811:6376391') // Buildcraft
+    //compile('curse.maven:bc-892913:5880716') // BC Remastered
 
     //testCompile "org.junit.jupiter:junit-jupiter-api:5.4.0"
 
