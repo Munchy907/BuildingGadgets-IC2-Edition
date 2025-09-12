@@ -18,7 +18,6 @@ public class CompatConfig {
     private static int energyCostDestruction = 200;
     private static int energyMax = 500000;
     private static int energyMaxDestruction = 1000000;
-    private static boolean poweredByEU = true;
     private static int durabilityBuilder = 500;
     private static int durabilityExchanger = 500;
     private static int durabilityDestruction = 500;
@@ -73,7 +72,6 @@ public class CompatConfig {
         Config.absoluteCoordDefault = absoluteCoordDefault;
         Config.allowAbsoluteCoords = allowAbsoluteCoords;
         Config.canOverwriteBlocks = canOverwriteBlocks;
-        Config.poweredByEU = poweredByEU;
         Config.subCategoryBlacklist.blockBlacklist = blacklist;
         Config.subCategoryGadgets.maxEnergy = energyMax;
         Config.subCategoryGadgets.maxRange = maxRange;

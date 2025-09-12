@@ -1,11 +1,12 @@
 package com.direwolf20.buildinggadgets.common.items.gadgets;
 
+import com.direwolf20.buildinggadgets.common.BuildingGadgets;
 import com.direwolf20.buildinggadgets.common.blocks.ModBlocks;
 import com.direwolf20.buildinggadgets.common.config.SyncedConfig;
 import com.direwolf20.buildinggadgets.common.entities.BlockBuildEntity;
 import com.direwolf20.buildinggadgets.common.items.FakeBuilderWorld;
-import com.direwolf20.buildinggadgets.common.items.ModItems;
 import com.direwolf20.buildinggadgets.common.tools.*;
+import ic2.core.platform.registry.Ic2Items;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
@@ -42,7 +43,6 @@ public class GadgetBuilding extends GadgetGeneric {
         super("buildingtool");
         setMaxDamage(SyncedConfig.durabilityBuilder);
     }
-
     @Override
     public int getMaxDamage(ItemStack stack) {return 0;}
 
@@ -68,7 +68,7 @@ public class GadgetBuilding extends GadgetGeneric {
 
     @Override
     public int getTier(ItemStack itemStack) {
-        return TIER;
+        return tier;
     }
 
     @Override
@@ -295,7 +295,7 @@ public class GadgetBuilding extends GadgetGeneric {
         if (ForgeEventFactory.onPlayerBlockPlace(player, blockSnapshot, EnumFacing.UP, EnumHand.MAIN_HAND).isCanceled()) {
             return false;
         }
-        ItemStack constructionPaste = new ItemStack(ModItems.constructionPaste);
+        ItemStack constructionPaste = Ic2Items.constructionFoamPellet;
         if (InventoryManipulation.countItem(itemStack, player, world) < neededItems) {
             //if (InventoryManipulation.countItem(constructionStack, player) == 0) {
             if (InventoryManipulation.countPaste(player) < neededItems) {
@@ -309,6 +309,7 @@ public class GadgetBuilding extends GadgetGeneric {
             return false;
 
         //ItemStack constructionStack = InventoryManipulation.getSilkTouchDrop(ModBlocks.constructionBlock.getDefaultState());
+        BuildingGadgets.logger.info(useConstructionPaste);
         boolean useItemSuccess;
         if (useConstructionPaste) {
             useItemSuccess = InventoryManipulation.usePaste(player, 1);

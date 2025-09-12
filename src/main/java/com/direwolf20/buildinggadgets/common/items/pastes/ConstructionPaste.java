@@ -14,11 +14,11 @@ public class ConstructionPaste extends ItemModBase {
         super("constructionpaste");
     }
 
-    @Override
+/*    @Override
     public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
         ItemStack itemstack = player.getHeldItem(hand);
         itemstack = InventoryManipulation.addPasteToContainer(player, itemstack);
         return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemstack);
-    }
+    }*/
 
 }

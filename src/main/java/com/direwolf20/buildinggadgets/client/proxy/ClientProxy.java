@@ -9,7 +9,7 @@ import com.direwolf20.buildinggadgets.common.entities.*;
 import com.direwolf20.buildinggadgets.common.items.ModItems;
 import com.direwolf20.buildinggadgets.common.items.gadgets.*;
 import com.direwolf20.buildinggadgets.common.proxy.CommonProxy;
-import com.direwolf20.buildinggadgets.common.tools.PasteContainerMeshDefinition;
+/*import com.direwolf20.buildinggadgets.common.tools.PasteContainerMeshDefinition;*/
 import com.direwolf20.buildinggadgets.common.tools.ToolRenders;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -61,17 +61,17 @@ public class ClientProxy extends CommonProxy {
         }
         if (SyncedConfig.enablePaste) {
             ModItems.constructionPaste.initModel();
-            ModItems.constructionChunkDense.initModel();
+/*            ModItems.constructionChunkDense.initModel();
             ModItems.constructionPasteContainer.initModel();
             ModItems.constructionPasteContainert2.initModel();
             ModItems.constructionPasteContainert3.initModel();
-            ModItems.constructionPasteContainerCreative.initModel();
+            ModItems.constructionPasteContainerCreative.initModel();*/
             ModBlocks.constructionBlockDense.initModel();
             ModBlocks.constructionBlock.initModel();
             ModBlocks.constructionBlockPowder.initModel();
-            ModelLoader.setCustomMeshDefinition(ModItems.constructionPasteContainer, new PasteContainerMeshDefinition());
+/*            ModelLoader.setCustomMeshDefinition(ModItems.constructionPasteContainer, new PasteContainerMeshDefinition());
             ModelLoader.setCustomMeshDefinition(ModItems.constructionPasteContainert2, new PasteContainerMeshDefinition());
-            ModelLoader.setCustomMeshDefinition(ModItems.constructionPasteContainert3, new PasteContainerMeshDefinition());
+            ModelLoader.setCustomMeshDefinition(ModItems.constructionPasteContainert3, new PasteContainerMeshDefinition());*/
         }
     }
 

@@ -85,7 +85,7 @@ public class GadgetCopyPaste extends GadgetGeneric implements ITemplate {
 
     @Override
     public int getTier(ItemStack itemStack) {
-        return TIER;
+        return tier;
     }
 
     @Override
@@ -553,6 +553,7 @@ public class GadgetCopyPaste extends GadgetGeneric implements ITemplate {
         ItemStack constructionPaste = new ItemStack(ModItems.constructionPaste);
         boolean useConstructionPaste = false;
         if (InventoryManipulation.countItem(itemStack, player, world) < neededItems) {
+            BuildingGadgets.logger.info("Paste amount in Player Inv: " + InventoryManipulation.countPaste(player));
             if (InventoryManipulation.countPaste(player) < neededItems) {
                 return;
             }

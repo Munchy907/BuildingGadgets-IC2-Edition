@@ -4,6 +4,7 @@ import com.direwolf20.buildinggadgets.common.blocks.Models.BlockstateProperty;
 import com.direwolf20.buildinggadgets.common.blocks.Models.ConstructionBakedModel;
 import com.direwolf20.buildinggadgets.common.items.FakeRenderWorld;
 import com.direwolf20.buildinggadgets.common.items.ModItems;
+import ic2.core.platform.registry.Ic2Items;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
@@ -16,12 +17,14 @@ import net.minecraft.client.renderer.color.BlockColors;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
@@ -333,6 +336,11 @@ public class ConstructionBlock extends BlockModBase implements IFacade {
     public int getMetaFromState(IBlockState state) {
         int value = state.getValue(BRIGHT) ? 1 : 0;
         return state.getValue(NEIGHBOR_BRIGHTNESS) ? value + 2 : value;
+    }
+
+    @Override
+    public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
+        return Ic2Items.constructionFoam != null ? Ic2Items.constructionFoam : super.getPickBlock(state, target, world, pos, player);
     }
 
     /**

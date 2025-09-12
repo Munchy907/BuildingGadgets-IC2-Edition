@@ -1,19 +1,22 @@
 package com.direwolf20.buildinggadgets.common.tools;
 
+import com.direwolf20.buildinggadgets.common.BuildingGadgets;
 import com.direwolf20.buildinggadgets.common.integration.IItemAccess;
 import com.direwolf20.buildinggadgets.common.items.ModItems;
 import com.direwolf20.buildinggadgets.common.items.gadgets.GadgetCopyPaste;
 import com.direwolf20.buildinggadgets.common.items.gadgets.GadgetGeneric;
 import com.direwolf20.buildinggadgets.common.items.pastes.ConstructionPaste;
-import com.direwolf20.buildinggadgets.common.items.pastes.GenericPasteContainer;
 import com.google.common.collect.ImmutableSet;
 
+import ic2.api.classic.item.IFoamProvider;
+import ic2.core.platform.registry.Ic2Items;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.block.*;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -32,6 +35,7 @@ public class InventoryManipulation {
     private enum InventoryType {
         PLAYER, LINKED, OTHER
     }
+    private static final int PELLET_META = 455;
 
     private static IProperty AXIS = PropertyEnum.create("axis", EnumFacing.Axis.class);
     private static final Set<IProperty> SAFE_PROPERTIES = ImmutableSet.of(BlockSlab.HALF, BlockStairs.HALF, BlockLog.LOG_AXIS, AXIS, BlockDirectional.FACING,
@@ -45,8 +49,8 @@ public class InventoryManipulation {
         if (player.capabilities.isCreativeMode)
             return ItemStack.EMPTY;
 
-        // Attempt to dump any construction paste back in it's container.
-        ItemStack target = targetStack.getItem() instanceof ConstructionPaste ? addPasteToContainer(player, targetStack) : targetStack;
+        //No longer attempt to dump any construction paste back in it's container as ic2 construction foam doesn't drop foam
+        ItemStack target = targetStack;
         if (target.getCount() == 0)
             return ItemStack.EMPTY;
 
@@ -205,6 +209,7 @@ public class InventoryManipulation {
      */
     public static int countItem(ItemStack itemStack, EntityPlayer player, World world) {
         return countItem(itemStack, player, (tool, stack) -> {
+            /*BuildingGadgets.logger.info(itemStack);*/
             IItemHandler remoteInventory = GadgetUtils.getRemoteInventory(tool, world, player);
             if(remoteInventory instanceof IItemAccess)
     			return ((IItemAccess) remoteInventory).getItemsForExtraction(stack, player);
@@ -221,8 +226,14 @@ public class InventoryManipulation {
         IItemHandler currentInv = player.getCapability(ITEM_HANDLER_CAPABILITY, null);
         if( currentInv == null )
             return 0;
-
+//        BuildingGadgets.logger.info("FIND ITEM START:");
         List<Integer> slots = findItem(itemStack.getItem(), itemStack.getMetadata(), currentInv);
+/*        BuildingGadgets.logger.info("FIND ITEM END:");
+        BuildingGadgets.logger.info("List:" + Arrays.toString(slots.toArray()));
+        BuildingGadgets.logger.info("List size:" + slots.size());
+        BuildingGadgets.logger.info("itemstack: {}", itemStack);
+        BuildingGadgets.logger.info("item: {}", itemStack.getItem());
+        BuildingGadgets.logger.info("meta: {}", itemStack.getMetadata());*/
         List<IItemHandler> invContainers = findInvContainers(player);
         if (slots.size() == 0 && invContainers.size() == 0 && count == 0) {
             return 0;
@@ -260,27 +271,39 @@ public class InventoryManipulation {
         }
 
         IItemHandler currentInv = player.getCapability(ITEM_HANDLER_CAPABILITY, null);
-        if( currentInv == null )
-            return 0;
+        if(currentInv == null){return 0;}
 
         long count = 0;
-        Item item = ModItems.constructionPaste;
-        List<Integer> slots = findItem(item, 0, currentInv);
-        if (slots.size() > 0) {
-            for (int slot : slots) {
+
+        Item pasteItem = ModItems.constructionPaste;
+        List<Integer> pasteSlots = findItem(pasteItem, 0, currentInv);
+        if (pasteSlots.size() > 0) {
+            for (int slot : pasteSlots) {
                 ItemStack stackInSlot = currentInv.getStackInSlot(slot);
                 count += stackInSlot.getCount();
             }
         }
-        List<Integer> containerSlots = findItemClass(GenericPasteContainer.class, currentInv);
-        if (containerSlots.size() > 0) {
-            for (int slot : containerSlots) {
+
+        Item pelletItem = Ic2Items.constructionFoamPellet.getItem();
+        List<Integer> pelletSlots = findItem(pelletItem, PELLET_META, currentInv);
+        if (pelletSlots.size() > 0) {
+            for (int slot : pelletSlots) {
                 ItemStack stackInSlot = currentInv.getStackInSlot(slot);
-                if (stackInSlot.getItem() instanceof GenericPasteContainer) {
-                    count += GenericPasteContainer.getPasteAmount(stackInSlot);
-                }
+                count += (stackInSlot.getCount() * 26L);
             }
         }
+
+        IItemHandler currentEquipment = player.getCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.EAST);
+        if (currentEquipment == null){currentEquipment = currentInv;}
+
+        List<Integer> foamProviderSlots = findItemClass(IFoamProvider.class, currentEquipment);
+        if (foamProviderSlots.size() > 0) {
+            for (int slot : foamProviderSlots) {
+                ItemStack stackInSlot = currentEquipment.getStackInSlot(slot);
+                count += getIFoamProvPasteCount(stackInSlot);
+            }
+        }
+
         return MathTool.longToInt(count);
     }
 
@@ -298,13 +321,14 @@ public class InventoryManipulation {
         if( currentInv == null )
             return itemStack;
 
-        List<Integer> slots = findItemClass(GenericPasteContainer.class, currentInv);
+        List<Integer> slots = findItemClass(IFoamProvider.class, currentInv);
         if (slots.size() == 0)
             return itemStack;
 
         Map<Integer, Integer> slotMap = new HashMap<>();
         for (int slot : slots) {
-            slotMap.put(slot, GenericPasteContainer.getPasteAmount(currentInv.getStackInSlot(slot)));
+            ItemStack containerStack = currentInv.getStackInSlot(slot);
+            slotMap.put(slot, containerStack.getMaxDamage() - containerStack.getItemDamage());
         }
         List<Map.Entry<Integer, Integer>> list = new ArrayList<>(slotMap.entrySet());
         Comparator<Map.Entry<Integer, Integer>> comparator = Comparator.comparing(Map.Entry::getValue);
@@ -314,17 +338,21 @@ public class InventoryManipulation {
 
         for (Map.Entry<Integer, Integer> entry : list) {
             ItemStack containerStack = currentInv.getStackInSlot(entry.getKey());
-            int maxAmount = ((GenericPasteContainer) containerStack.getItem()).getMaxCapacity();
-            int pasteInContainer = GenericPasteContainer.getPasteAmount(containerStack);
-            int freeSpace = maxAmount - pasteInContainer;
+            //int maxAmount = ((GenericPasteContainer) containerStack.getItem()).getMaxCapacity();
+            //int pasteInContainer = entry.getValue();
+            int freeSpace = ((IFoamProvider) containerStack.getItem()).getFreeRoom(containerStack);
             int stackSize = itemStack.getCount();
             int remainingPaste = stackSize - freeSpace;
             if (remainingPaste < 0) {
                 remainingPaste = 0;
             }
             int usedPaste = Math.abs(stackSize - remainingPaste);
+            BuildingGadgets.logger.info("Space left before fill: " + ((IFoamProvider) containerStack.getItem()).getFreeRoom(containerStack));
             itemStack.setCount(remainingPaste);
-            GenericPasteContainer.setPasteAmount(containerStack, pasteInContainer + usedPaste);
+            ((IFoamProvider) containerStack.getItem()).fillFoam(containerStack, usedPaste);
+            BuildingGadgets.logger.info("Space left after fill: " + ((IFoamProvider) containerStack.getItem()).getFreeRoom(containerStack));
+            if (remainingPaste == 0){return itemStack;}
+            //containerStack.setItemDamage(containerStack.getMaxDamage() - (pasteInContainer + usedPaste)) ;
         }
         return itemStack;
     }
@@ -334,13 +362,14 @@ public class InventoryManipulation {
             return true;
         }
 
+
         IItemHandler currentInv = player.getCapability(ITEM_HANDLER_CAPABILITY, null);
-        if( currentInv == null )
+        if( currentInv == null)
             return false;
 
-        List<Integer> slots = findItem(ModItems.constructionPaste, 0, currentInv);
-        if (slots.size() > 0) {
-            for (int slot : slots) {
+        List<Integer> pasteSlots = findItem(ModItems.constructionPaste, 0, currentInv);
+        if (pasteSlots.size() > 0) {
+            for (int slot : pasteSlots) {
                 ItemStack pasteStack = currentInv.getStackInSlot(slot);
                 if (pasteStack.getCount() >= count) {
                     pasteStack.shrink(count);
@@ -349,17 +378,35 @@ public class InventoryManipulation {
             }
         }
 
-        List<Integer> containerSlots = findItemClass(GenericPasteContainer.class, currentInv);
-        if (containerSlots.size() > 0) {
-            for (int slot : containerSlots) {
-                ItemStack containerStack = currentInv.getStackInSlot(slot);
-                if (containerStack.getItem() instanceof GenericPasteContainer) {
-                    int pasteAmt = GenericPasteContainer.getPasteAmount(containerStack);
-                    if (pasteAmt >= count) {
-                        GenericPasteContainer.setPasteAmount(containerStack, pasteAmt - count);
-                        return true;
-                    }
+        IItemHandler currentEquipment = player.getCapability(ITEM_HANDLER_CAPABILITY, EnumFacing.EAST);
+        if (currentEquipment == null){currentEquipment = currentInv;}
 
+        //Looking for equipped items only, same as IC2 works
+        List<Integer> iFoamSlots = findItemClass(IFoamProvider.class, currentEquipment);
+        if (iFoamSlots.size() > 0) {
+            for (int slot : iFoamSlots) {
+                ItemStack containerStack = currentEquipment.getStackInSlot(slot);
+                if (getIFoamProvPasteCount(containerStack) >= count) {
+                    ((IFoamProvider)containerStack.getItem()).useFoam(player, containerStack, count);
+                    return true;
+                }
+            }
+        }
+
+        List<Integer> pelletSlots = findItem(Ic2Items.constructionFoamPellet.getItem(), PELLET_META, currentInv);
+        if (pelletSlots.size() > 0) {
+            for (int slot : pelletSlots) {
+                ItemStack pelletStack = currentInv.getStackInSlot(slot);
+                int pelletCost = (int) Math.ceil((float) count / 24);
+                if (pelletStack.getCount() >= pelletCost) {
+                    int leftoverPaste = (24 * pelletCost) - count;
+                    pelletStack.shrink(count);
+                    if (leftoverPaste <= 0){return true;}
+                    ItemStack pasteStack = new ItemStack(ModItems.constructionPaste, leftoverPaste);
+                    if (!player.addItemStackToInventory(pasteStack)){
+                       player.world.spawnEntity(new EntityItem(player.world, player.posX, player.posY, player.posZ, pasteStack));
+                    }
+                    return true;
                 }
             }
         }
@@ -392,6 +439,9 @@ public class InventoryManipulation {
                 count += tempItem.getCount();
             }
         }
+        BuildingGadgets.logger.info("Item: " + item);
+        BuildingGadgets.logger.info("container: " + container);
+        BuildingGadgets.logger.info("count: " + count);
         return count;
     }
 
@@ -402,6 +452,10 @@ public class InventoryManipulation {
 
         for (int i = 0; i < itemHandler.getSlots(); i++) {
             ItemStack stack = itemHandler.getStackInSlot(i);
+/*          BuildingGadgets.logger.info("Stack: " + stack);
+            BuildingGadgets.logger.info("Stack Meta: " + stack.getMetadata());
+            BuildingGadgets.logger.info("Item: " + item);
+            BuildingGadgets.logger.info("Meta: " + meta);*/
             if (!stack.isEmpty() && stack.getItem() == item && meta == stack.getMetadata())
                 slots.add(i);
         }
@@ -410,7 +464,6 @@ public class InventoryManipulation {
 
     private static List<Integer> findItemClass(Class c, IItemHandler itemHandler) {
         List<Integer> slots = new ArrayList<>();
-
         for (int i = 0; i < itemHandler.getSlots(); i++) {
             ItemStack stack = itemHandler.getStackInSlot(i);
             if (!stack.isEmpty() && c.isInstance(stack.getItem())) {
@@ -420,11 +473,19 @@ public class InventoryManipulation {
         return slots;
     }
 
+    public static int getIFoamProvPasteCount(ItemStack iFoamStack){
+        return (iFoamStack.getItem() instanceof IFoamProvider) ?
+                (iFoamStack.getMaxDamage() - iFoamStack.getItemDamage()) : 0;
+    }
+
     public static ItemStack getSilkTouchDrop(IBlockState state) {
         Item item = Item.getItemFromBlock(state.getBlock());
+
         int i = 0;
         if (item.getHasSubtypes()) {
-            i = state.getBlock().damageDropped(state);
+            //damageDropped doesn't work on rare occasions like cobblestone monster egg (infested cobblestone)
+            try {i = Math.max(state.getBlock().damageDropped(state), state.getBlock().getMetaFromState(state));
+            }catch (IllegalArgumentException exception){i = state.getBlock().damageDropped(state);}
         }
         return new ItemStack(item, 1, i);
     }

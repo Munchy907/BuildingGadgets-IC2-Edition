@@ -42,6 +42,7 @@ public class GadgetExchanger extends GadgetGeneric {
     public GadgetExchanger() {
         super("exchangertool");
         setMaxDamage(SyncedConfig.durabilityExchanger);
+        tier = 3;
     }
 
     @Override
@@ -69,7 +70,7 @@ public class GadgetExchanger extends GadgetGeneric {
 
     @Override
     public int getTier(ItemStack itemStack) {
-        return TIER;
+        return tier;
     }
 
     @Override

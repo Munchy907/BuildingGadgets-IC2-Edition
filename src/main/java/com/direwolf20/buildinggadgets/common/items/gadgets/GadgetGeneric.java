@@ -4,11 +4,15 @@ import com.direwolf20.buildinggadgets.common.config.SyncedConfig;
 import com.direwolf20.buildinggadgets.common.items.ItemModBase;
 import com.direwolf20.buildinggadgets.common.items.capability.CapabilityProviderBlockProvider;
 import com.direwolf20.buildinggadgets.common.tools.NBTTool;
+import ic2.api.classic.item.IDamagelessElectricItem;
+import ic2.api.classic.item.IElectricTool;
 import ic2.api.item.ElectricItem;
-import ic2.api.item.IElectricItem;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnumEnchantmentType;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -28,13 +32,14 @@ import net.minecraftforge.event.world.BlockEvent;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public abstract class GadgetGeneric extends ItemModBase implements IElectricItem {
-    protected final int TIER = 3; // Tier in IC2 Terms, same tier as Lapotron Crystal
+public abstract class GadgetGeneric extends ItemModBase implements IDamagelessElectricItem, IElectricTool {
+    protected int tier = 2; // Tier in IC2 Terms, same tier as Energy Crystal
     protected final int TRANSFER_RATE = 2048; // Transfer rate for IC2, same as Lapotron Crystal
     protected final boolean PROVIDE_ENERGY = false; // Can provide energy to machines, same as a normal IC2 Tool
 
     public GadgetGeneric(String name) {
         super(name);
+        this.setNoRepair();
         setMaxStackSize(1);
     }
 
@@ -57,6 +62,24 @@ public abstract class GadgetGeneric extends ItemModBase implements IElectricItem
     @Override
     public boolean isRepairable() {
         return false;
+    }
+
+    @Override
+    public boolean isBookEnchantable(ItemStack stack, ItemStack book){return false;}
+
+    @Override
+    public boolean isEnchantable(ItemStack stack) {return false;}
+    @Override
+    public boolean isExcluded(ItemStack item, Enchantment ench) {
+        return ench == Enchantments.MENDING;
+    }
+    @Override
+    public EnumEnchantmentType getType(ItemStack item) {
+        return EnumEnchantmentType.DIGGER;
+    }
+    @Override
+    public boolean isSpecialSupported(ItemStack item, Enchantment ench) {
+        return ench == Enchantments.UNBREAKING;
     }
 
     @Override
@@ -114,7 +137,7 @@ public abstract class GadgetGeneric extends ItemModBase implements IElectricItem
         if (player.capabilities.isCreativeMode || getMaxEnergy() == 0)
             return;
 
-        ElectricItem.manager.discharge(tool, getEnergyCost(tool), TIER, true, false, false);
+        ElectricItem.manager.use(tool, getEnergyCost(tool), player);
     }
 
     protected void addEnergyInformation(List<String> list, ItemStack stack) {

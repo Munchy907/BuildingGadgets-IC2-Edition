@@ -3,9 +3,9 @@
     "item": "buildinggadgets:copypastetool"
   },
   "pattern": [
-    "igi",
-    "ete",
-    "ici"
+    "iti",
+    "cmc",
+    "ene"
   ],
   "type": "forge:ore_shaped",
   "key": {
@@ -17,13 +17,16 @@
       "item": "ic2:blockmachinehv",
       "data": 2
     },
-    "g": {
-      "item": "ic2:blockutility",
-      "data": 5
+    "m": {
+      "item": "ic2:itemmemorystick"
     },
     "c": {
       "item": "ic2:itemmisc",
       "data": 452
+    },
+    "n": {
+      "item": "ic2:blockmachinelv",
+      "data": 6
     },
     "e": {
       "item": "ic2:itembatcrystal"

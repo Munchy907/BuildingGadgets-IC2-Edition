@@ -44,6 +44,7 @@ public class GadgetDestruction extends GadgetGeneric {
     public GadgetDestruction() {
         super("destructiontool");
         setMaxDamage(SyncedConfig.durabilityDestruction);
+        tier = 3;
     }
 
     @Override
@@ -80,7 +81,7 @@ public class GadgetDestruction extends GadgetGeneric {
 
     @Override
     public int getTier(ItemStack itemStack) {
-        return TIER;
+        return tier;
     }
 
     @Override
