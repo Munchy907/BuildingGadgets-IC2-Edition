@@ -131,7 +131,7 @@ public class Config {
         @Name("Maximum Energy")
         @Comment("The max energy of Building, Exchanging & Copy-Paste Gadget")
         @LangKey(LANG_KEY_GADGETS + ".maxEnergy")
-        public int maxEnergy = 500000;
+        public int maxEnergy = 200000;
 
         @Name("Building Gadget")
         @Comment("Energy Cost & Durability of the Building Gadget")

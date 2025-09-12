@@ -22,8 +22,6 @@ public interface IPasteRecipeRegistry extends IIntegratedMod {
 
     default void registerAllRecipes() {
         registerHydrationRecipe(RecipieType.POWDER_TO_BLOCK, new ItemStack(ModBlocks.constructionBlockPowder), new ItemStack(ModBlocks.constructionBlockDense));
-        registerDeconstructRecipe(RecipieType.BLOCK_TO_CHUNKS, new ItemStack(ModBlocks.constructionBlockDense), new ItemStack(ModItems.constructionChunkDense, 4));
-        registerDeconstructRecipe(RecipieType.CHUNK_TO_PASTE, new ItemStack(ModItems.constructionChunkDense), new ItemStack(ModItems.constructionPaste));
     }
 
     default void registerHydrationRecipe(RecipieType type, ItemStack input, ItemStack output) {}

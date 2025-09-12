@@ -16,7 +16,6 @@ import com.direwolf20.buildinggadgets.common.items.gadgets.GadgetBuilding;
 import com.direwolf20.buildinggadgets.common.items.gadgets.GadgetCopyPaste;
 import com.direwolf20.buildinggadgets.common.items.gadgets.GadgetDestruction;
 import com.direwolf20.buildinggadgets.common.items.gadgets.GadgetExchanger;
-import com.direwolf20.buildinggadgets.common.items.pastes.ConstructionChunkDense;
 import com.direwolf20.buildinggadgets.common.items.pastes.ConstructionPaste;
 import com.direwolf20.buildinggadgets.common.items.pastes.ConstructionPasteContainer;
 import com.direwolf20.buildinggadgets.common.items.pastes.ConstructionPasteContainerCreative;
@@ -95,7 +94,6 @@ public class CommonProxy {
             event.getRegistry().register(new ItemBlock(ModBlocks.constructionBlock).setRegistryName(ModBlocks.constructionBlock.getRegistryName()));
             event.getRegistry().register(new ItemBlock(ModBlocks.constructionBlockPowder).setRegistryName(ModBlocks.constructionBlockPowder.getRegistryName()));
             event.getRegistry().register(new ConstructionPaste());
-            event.getRegistry().register(new ConstructionChunkDense());
             for (RegularPasteContainerTypes type : RegularPasteContainerTypes.values()) {
                 event.getRegistry().register(new ConstructionPasteContainer(type.itemSuffix, type.capacitySupplier));
             }
