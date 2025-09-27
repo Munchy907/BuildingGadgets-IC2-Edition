@@ -29,8 +29,8 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public abstract class GadgetGeneric extends ItemModBase implements IElectricItem {
-    protected final int TIER = 3; // Tier in IC2 Terms, same tier as Lapotron Crystal
-    protected final int TRANSFER_RATE = 2048; // Transfer rate for IC2, same as Lapotron Crystal
+    protected final int TIER = 2; // Tier in IC2 Terms, same tier as Energy Crystal
+    protected final int TRANSFER_RATE = 250; // Transfer rate for IC2, same as Energy Crystal
     protected final boolean PROVIDE_ENERGY = false; // Can provide energy to machines, same as a normal IC2 Tool
 
     public GadgetGeneric(String name) {
